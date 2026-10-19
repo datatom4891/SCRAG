@@ -13,3 +13,6 @@ wheels/
 .idea
 articles/
 chroma_db/
+
+*.ipynb
+*.png

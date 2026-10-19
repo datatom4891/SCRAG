@@ -1,46 +1,21 @@
 import os
 
-from dotenv import load_dotenv
-
-
 from langchain.chat_models import init_chat_model
 from langchain_openai.embeddings import OpenAIEmbeddings
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
 
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_classic.retrievers import EnsembleRetriever
 from langchain_community.retrievers import BM25Retriever
-from langchain_classic.retrievers import ContextualCompressionRetriever
-from langchain_classic.retrievers.document_compressors import LLMChainExtractor
 
-from kb_builder import KnowledgeBaseBuilder
-from prompt_templates.system_prompts import system_prompt
-from prompt_templates.user_prompts import user_prompt
-
-load_dotenv(override=True)
-
-default_chroma_dir = os.path.join(os.getcwd(),'chroma_db')
+from config import VectorIndexConfig
 
 class KnowledgeBase:
 
-    def __init__(self,
-                 build_kb_from_scratch=True,
-                 embedding_model_name="text-embedding-3-small",
-                 chroma_db_dir = default_chroma_dir
-                 ):
-        self.embedding_model = OpenAIEmbeddings(model=embedding_model_name)
-
-        if build_kb_from_scratch:
-            kb_builder = KnowledgeBaseBuilder(embedding_model=embedding_model_name,
-                                                   chroma_dir=chroma_db_dir)
-            self.vector_store = kb_builder.get_kb_vector_store()
-        else:
-            self.vector_store = Chroma(persist_directory=default_chroma_dir,
-                                       embedding_function=OpenAIEmbeddings(model=embedding_model_name)
-                                       )
+    def __init__(self, config: VectorIndexConfig):
+            self.top_k = config.vector_store.top_k
+            self.vector_store = Chroma(persist_directory=config.vector_store.chroma_db_dir,
+                                       embedding_function=OpenAIEmbeddings(model=config.embedding.model_name))
 
     def _retrieved_docs_formatter(self, retrieved_docs):
         formatted_context = []
@@ -66,13 +41,13 @@ class KnowledgeBase:
         return all_articles
 
     def doc_retriever(self, query):
-        retriever = self.vector_store.as_retriever()
+        retriever = self.vector_store.as_retriever(search_kwargs={"k":self.top_k})
         ALL_KB_ARTICLES = self._get_all_kb_articles()
 
         bm25_retriever = BM25Retriever.from_documents(ALL_KB_ARTICLES)
         bm25_retriever.k = 5
 
-        semantic_retriever = self.vector_store.as_retriever(search_kwargs={"k":5})
+        semantic_retriever = self.vector_store.as_retriever(search_kwargs={"k":self.top_k})
         hybrid_retriever = EnsembleRetriever(
             retrievers=[bm25_retriever, semantic_retriever],
             weights=[0.4, 0.6]

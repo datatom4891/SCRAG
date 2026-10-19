@@ -2,30 +2,34 @@ import os
 import shutil
 import logging
 
-from dotenv import load_dotenv
+
 from pathlib import Path
 from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_text_splitters import  MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
 
-from resources import md_doc_split_pattern
+from config import VectorStoreBuilderConfig, EmbeddingConfig, VectorStoreConfig, TextSplitterConfig, MDSplitterConfig
 
-load_dotenv(override=True)
 
-default_md_articles_dir = os.path.join(os.getcwd(),'articles')
-default_chroma_dir = os.path.join(os.getcwd(),'chroma_db')
 
 class KnowledgeBaseBuilder:
 
-    def __init__(self,
-                 embedding_model="text-embedding-3-small",
-                 md_doc_dir = default_md_articles_dir,
-                 chroma_dir = default_chroma_dir):
-        self.embedding_model = OpenAIEmbeddings(model=embedding_model)
-        self.md_doc_dir = md_doc_dir
-        self.chroma_dir = chroma_dir
-        self.md_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=md_doc_split_pattern)
-        self.recursive_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+    def __init__(self, config: VectorStoreBuilderConfig):
+        self.config = config
+        self.embedding_config = self.config.embedding
+        self.vs_config = self.config.vector_store
+        self.ts_config = self.config.text_splitter
+        self.mds_config = self.config.md_splitter
+        
+        self.embedding_model = OpenAIEmbeddings(model=self.embedding_config.model_name)
+        
+        self.md_doc_dir = self.vs_config.md_articles_dir
+        self.chroma_dir = self.vs_config.chroma_db_dir
+        
+        self.md_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=self.mds_config.md_doc_split_pattern)
+        
+        self.recursive_splitter = RecursiveCharacterTextSplitter(chunk_size=self.ts_config.chunk_size, chunk_overlap=self.ts_config.chunk_overlap)
+        
         self.chunked_documents = self._chunk_documents()
         self.vector_store = self._build_vector_store()
 
