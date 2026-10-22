@@ -1,4 +1,5 @@
-from security.prompt_injection import UserInputSanitization, InjectionScanResult
+from security.prompt_injection import UserInputSanitization
+from security.models import InjectionScanResult
 
 class SecurityPipeline:
 

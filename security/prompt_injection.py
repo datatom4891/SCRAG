@@ -1,17 +1,12 @@
 import re
-from dataclasses import dataclass
 from typing import Optional
 from langsmith import traceable
 
 from security.config import InjectionPatternsConfig
+from security.models import InjectionScanResult
 
 
-@dataclass
-class InjectionScanResult:
-    normalized_text: str
-    matched_rules: list[str]
-    score: int
-    decision: str
+
 
 
 class UserInputSanitization:
