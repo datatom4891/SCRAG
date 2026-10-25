@@ -127,6 +127,38 @@ class PIIPatternsConfig:
       "pan_india": r"\b[A-Z]{5}\d{4}[A-Z]\b",
     })
     
+    pii_masks: dict[str, str] = field(default_factory= lambda:{
+      "email": "[EMAIL]",
+      "phone_us_general": "[US PHONE NUMBER]",
+      "ssn_us": "[SSN]",
+      "date_of_birth": "[DOB]",
+      "credit_card_candidate": "[CREDIT CARD NUMBER]",
+      "iban": "[IBAN]",
+      "bank_routing_us": "[BANK ROUTING NUMBER]",
+      "swift_bic": "[SWIFT BIC]",
+      "ein_us": "[EIN]",
+      "passport_us_candidate": "[US PASSPORT]",
+      "drivers_license_us_candidate": "[US DRIVERS LICENSE]", 
+      "mrn_candidate": "[MRN]",
+      "health_insurance_id_candidate": "[HEALTH INSURANCE ID]",
+      "api_key_generic": "[API KEY]",
+      "jwt": "[JSON WEB TOKEN]",
+      "aws_access_key_id": "[AWS ACCESS KEY ID]",
+      "aws_secret_access_key_candidate": "[AWS SECRET KEY]",
+      "github_pat": "[GITHUB INFORMATION]",
+      "github_fine_grained_pat": "[GITHUB INFORMATION]",
+      "slack_token": "[SLACK TOKEN]",
+      "private_key_header": "[PRIVATE KEY HEADER]",
+      "ipv4": "[LIKELY IP ADDRESS]",
+      "ipv6": "[LIKELY IP ADDRESS]",
+      "mac_address": "[MAC ADDRESS]",
+      "zip_us": "[ZIP CODE]",
+      "address_line_candidate": "[PHYSICAL ADDRESS]",
+      "national_insurance_uk": "[UK PERSONAL ID]",
+      "sin_canada": "[CANADIAN PERSONAL ID]",
+      "aadhaar_india": "[INDIAN PERSONAL ID]",
+      "pan_india": "[INDIAN PERSONAL ID]"
+    })
     regex_flags: int = re.IGNORECASE
     
     def compile_patterns(self) -> dict[str, re.Pattern[str]]:

@@ -2,11 +2,11 @@ from langchain.chat_models import init_chat_model
 from langsmith import traceable
 
 
-from agent_state import SCRAGAgentState
-from kb import KnowledgeBase
-from config import VectorIndexConfig, EmbeddingConfig, VectorStoreConfig, LLMConfig
-from prompts import ContextRelevancePrompt, QuestionRefinementPrompt, AnswerPrompt
-from models import ContextRelevance, RAGAnswer
+from agent.agent_state import SCRAGAgentState
+from agent.kb import KnowledgeBase
+from agent.config import VectorIndexConfig, EmbeddingConfig, VectorStoreConfig, LLMConfig
+from agent.prompts import ContextRelevancePrompt, QuestionRefinementPrompt, AnswerPrompt
+from agent.models import ContextRelevance, RAGAnswer
 
 
 # load_dotenv(override=True)
@@ -62,10 +62,22 @@ class DecisionRouter:
         pass
 
     def __call__(self, state: SCRAGAgentState):
-        if state.context_relevance_rank >= 4:
+        max_refinements = 3
+        score = state.context_relevance_rank
+
+        if state.question_refined_counter > max_refinements:
             return "answer"
-        else:
+
+        if score is None:
             return "refine_question"
+
+        if not isinstance(score, (int, float)):
+            return "refine_question"
+
+        if score >= 4:
+            return "answer"
+
+        return "refine_question"
 
 class QuestionRefinementNode:
     def __init__(self, llm_config: LLMConfig):

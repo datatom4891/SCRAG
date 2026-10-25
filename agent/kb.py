@@ -8,7 +8,7 @@ from langchain_core.documents import Document
 from langchain_classic.retrievers import EnsembleRetriever
 from langchain_community.retrievers import BM25Retriever
 
-from config import VectorIndexConfig
+from agent.config import VectorIndexConfig
 
 class KnowledgeBase:
 

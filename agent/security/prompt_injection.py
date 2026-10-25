@@ -2,8 +2,8 @@ import re
 from typing import Optional
 from langsmith import traceable
 
-from security.config import InjectionPatternsConfig
-from security.models import InjectionScanResult
+from .config import InjectionPatternsConfig
+from .models import InjectionScanResult
 
 
 
@@ -41,6 +41,7 @@ class UserInputSanitization:
         score = self._score_match(matched_rules)
         decision = self._make_decision(score)
         return InjectionScanResult(
+            initial_text = user_text,
             normalized_text=normalized_text,
             matched_rules=matched_rules,
             score=score,

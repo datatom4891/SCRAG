@@ -3,7 +3,7 @@ import types
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-from config import (
+from agent.config import (
     EmbeddingConfig,
     LLMConfig,
     MDSplitterConfig,
@@ -12,8 +12,8 @@ from config import (
     VectorStoreBuilderConfig,
     VectorStoreConfig,
 )
-from security.config import PIIPatternsConfig
-from security.prompt_injection import UserInputSanitization
+from agent.security.config import PIIPatternsConfig
+from agent.security.prompt_injection import UserInputSanitization
 
 
 def _install_agent_import_stubs():
@@ -35,15 +35,15 @@ def _install_agent_import_stubs():
         graph_mod.END = object()
         sys.modules["langgraph.graph"] = graph_mod
 
-    if "kb" not in sys.modules:
-        kb_mod = types.ModuleType("kb")
+    if "agent.kb" not in sys.modules:
+        kb_mod = types.ModuleType("agent.kb")
 
         class FakeKnowledgeBase:
             def __init__(self, *args, **kwargs):
                 pass
 
         kb_mod.KnowledgeBase = FakeKnowledgeBase
-        sys.modules["kb"] = kb_mod
+        sys.modules["agent.kb"] = kb_mod
 
 
 def _install_kb_import_stubs():
@@ -104,9 +104,9 @@ def _install_kb_import_stubs():
 _install_agent_import_stubs()
 _install_kb_import_stubs()
 
-from agent_state import SCRAGAgentState
-from agent_nodes import ContextCriticNode, ContextRetrievalNode
-from kb_builder import KnowledgeBaseBuilder
+from agent.agent_state import SCRAGAgentState
+from agent.agent_nodes import ContextCriticNode, ContextRetrievalNode
+from agent.kb_builder import KnowledgeBaseBuilder
 
 
 def test_context_retrieval_node_uses_original_question_when_not_refined():
@@ -117,7 +117,7 @@ def test_context_retrieval_node_uses_original_question_when_not_refined():
     fake_kb = MagicMock()
     fake_kb.doc_retriever.return_value = "retrieved context"
 
-    with patch("agent_nodes.KnowledgeBase", return_value=fake_kb) as mock_kb:
+    with patch("agent.agent_nodes.KnowledgeBase", return_value=fake_kb) as mock_kb:
         node = ContextRetrievalNode(vector_index_config=vector_index_config)
 
     state = SCRAGAgentState(
@@ -145,7 +145,7 @@ def test_context_retrieval_node_uses_refined_question_when_available():
     fake_kb = MagicMock()
     fake_kb.doc_retriever.return_value = "retrieved refined context"
 
-    with patch("agent_nodes.KnowledgeBase", return_value=fake_kb):
+    with patch("agent.agent_nodes.KnowledgeBase", return_value=fake_kb):
         node = ContextRetrievalNode(vector_index_config=vector_index_config)
 
     state = SCRAGAgentState(
@@ -175,9 +175,9 @@ def test_context_critic_node_uses_original_question_when_not_refined():
     fake_kb = MagicMock()
     fake_kb.doc_retriever.return_value = "retrieved context"
 
-    with patch("agent_nodes.init_chat_model", return_value=fake_llm) as mock_init_chat_model, patch(
-        "agent_nodes.KnowledgeBase", return_value=fake_kb
-    ), patch("agent_nodes.ContextRelevancePrompt") as mock_prompt_cls:
+    with patch("agent.agent_nodes.init_chat_model", return_value=fake_llm) as mock_init_chat_model, patch(
+        "agent.agent_nodes.KnowledgeBase", return_value=fake_kb
+    ), patch("agent.agent_nodes.ContextRelevancePrompt") as mock_prompt_cls:
         mock_prompt = MagicMock()
         mock_prompt.prompt_template = "Q={user_question} C={retrieved_context}"
         mock_prompt_cls.return_value = mock_prompt
@@ -214,9 +214,9 @@ def test_context_critic_node_uses_refined_question_when_available():
     fake_kb = MagicMock()
     fake_kb.doc_retriever.return_value = "retrieved refined context"
 
-    with patch("agent_nodes.init_chat_model", return_value=fake_llm), patch(
-        "agent_nodes.KnowledgeBase", return_value=fake_kb
-    ), patch("agent_nodes.ContextRelevancePrompt") as mock_prompt_cls:
+    with patch("agent.agent_nodes.init_chat_model", return_value=fake_llm), patch(
+        "agent.agent_nodes.KnowledgeBase", return_value=fake_kb
+    ), patch("agent.agent_nodes.ContextRelevancePrompt") as mock_prompt_cls:
         mock_prompt = MagicMock()
         mock_prompt.prompt_template = "Q={user_question} C={retrieved_context}"
         mock_prompt_cls.return_value = mock_prompt
@@ -264,8 +264,8 @@ def test_knowledge_base_builder_chunks_markdown_and_builds_vector_store(tmp_path
         md_splitter=MDSplitterConfig(),
     )
 
-    with patch("kb_builder.OpenAIEmbeddings", return_value=fake_embedding) as mock_embeddings, patch(
-        "kb_builder.Chroma.from_documents", return_value=fake_store
+    with patch("agent.kb_builder.OpenAIEmbeddings", return_value=fake_embedding) as mock_embeddings, patch(
+        "agent.kb_builder.Chroma.from_documents", return_value=fake_store
     ) as mock_from_documents:
         builder = KnowledgeBaseBuilder(config=config)
 

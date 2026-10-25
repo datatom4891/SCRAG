@@ -8,7 +8,7 @@ from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_text_splitters import  MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
 
-from config import VectorStoreBuilderConfig, EmbeddingConfig, VectorStoreConfig, TextSplitterConfig, MDSplitterConfig
+from agent.config import VectorStoreBuilderConfig, EmbeddingConfig, VectorStoreConfig, TextSplitterConfig, MDSplitterConfig
 
 
 
