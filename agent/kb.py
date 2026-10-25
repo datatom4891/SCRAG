@@ -25,9 +25,10 @@ class KnowledgeBase:
 
         for i, doc in enumerate(retrieved_docs):
             source = doc.metadata.get('article_name', 'Unknown')
-            formatted_context.append(f"[Article Source {i + 1}: {source}]\n {doc.page_content}")
-
-        return "\n\n-----------------------------------------------------------\n\n".join(formatted_context)
+            formatted_context.append(f"[Article Source {i + 1}: {source}]\n\n {doc.page_content}")
+        
+        return formatted_context
+        #return "\n\n-----------------------------------------------------------\n\n".join(formatted_context)
 
     def _get_all_kb_articles(self):
         kb = self.vector_store

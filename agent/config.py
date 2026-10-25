@@ -56,7 +56,16 @@ class VectorIndexConfig:
     vector_store: VectorStoreConfig = field(default_factory=VectorStoreConfig)
 
 @dataclass
+class TavilyToolConfig:
+    api_key: Optional[str] = field(default_factory=lambda: os.getenv("TAVILY_API_KEY"))
+    max_results=3
+    topic = "general"
+
+@dataclass
 class RAGAgentConfig:
     vector_index_config:VectorIndexConfig = field(default_factory=VectorIndexConfig)
     llm_config: LLMConfig = field(default_factory=LLMConfig)
+    tavily_config:TavilyToolConfig = field(default_factory=TavilyToolConfig)
+
+
 

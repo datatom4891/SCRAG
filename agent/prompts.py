@@ -21,13 +21,13 @@ class ContextRelevancePrompt:
 
     User question:
     <question>
-    {{user_question}}
+    {user_question}
     </question>
 
-    Retrieved documents:
-    <documents>
-    {{retrieved_context}}
-    </documents>
+    Retrieved document:
+    <document>
+    {retrieved_context}
+    </document>
 
     Output format (JSON only, no other text):
     {{"reason": "<one sentence justification>", "relevance_score": <1-5>}}
@@ -36,22 +36,16 @@ class ContextRelevancePrompt:
 @dataclass(frozen=True)
 class QuestionRefinementPrompt:
     prompt_template: str = """
-        You are a question refinement assistant for a retrieval-augmented generation (RAG) system. Given a user question, refine it to make it clearer and more specific if needed.
+        You are a question refinement assistant for a corrective retrieval-augmented generation (CRAG) system. 
+        Given a user question, rewrite it to optimize it for web search.
 
-        Use the context critic feedback below to decide whether the question should be rewritten to target the missing information, clarify ambiguity, or narrow the scope.
+        User question:
+        <question>
+        {user_question}
+        </question>
 
-    User question:
-    <question>
-    {{user_question}}
-    </question>
-
-    Context critic feedback for previous retrieval attempt (if available):
-    <context_critic_reason>
-    {{context_critic_reason}}
-    </context_critic_reason>
-
-    Output format (JSON only, no other text):
-    {{"refined_question": "<refined question>"}}
+        Output format (JSON only, no other text):
+        {{"refined_question": "<refined question>"}}
     """
 
 @dataclass(frozen=True)

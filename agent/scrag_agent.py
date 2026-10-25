@@ -1,8 +1,8 @@
 from langgraph.graph import StateGraph, START, END
 from dataclasses import dataclass
-from agent.agent_nodes import ContextCriticNode, ContextRetrievalNode, DecisionRouter, AnswerNode, QuestionRefinementNode
+from agent.agent_nodes import ContextCriticNode, ContextRetrievalNode, DecisionRouter, AnswerNode, QuestionRefinementNode, WebSearchNode
 from agent.agent_state import SCRAGAgentState
-from agent.config import RAGAgentConfig
+from agent.config import RAGAgentConfig, TavilyToolConfig
 from agent.security.security_pipeline  import SecurityPipeline
 
 @dataclass
@@ -21,24 +21,32 @@ class SCRAGAgent:
     def _build_agent(self):
       retrieval_node = ContextRetrievalNode(self.agent_config.vector_index_config)
       judge_node = ContextCriticNode(self.agent_config.llm_config)
-      decision_router = DecisionRouter()
+      decision_router_node = DecisionRouter()
+      web_search_node = WebSearchNode(self.agent_config.tavily_config)
       answer_node = AnswerNode(self.agent_config.llm_config)
       question_refinement_node = QuestionRefinementNode(self.agent_config.llm_config)
       
       graph = StateGraph(SCRAGAgentState)
       graph.add_node("retrieval_node", retrieval_node)
       graph.add_node("judge_node", judge_node)
-      graph.add_node("answer_node", answer_node)
       graph.add_node("question_refinement_node", question_refinement_node)
+      graph.add_node("web_search_node", web_search_node)
+      graph.add_node("answer_node", answer_node)
       
       graph.add_edge(START, "retrieval_node")
       graph.add_edge("retrieval_node", "judge_node")
-      graph.add_conditional_edges("judge_node", decision_router, {"answer":"answer_node",
+      graph.add_conditional_edges("judge_node", decision_router_node, {"answer":"answer_node",
                                                                 "refine_question":"question_refinement_node"})
-      graph.add_edge("question_refinement_node", "retrieval_node")
+      graph.add_edge("question_refinement_node", "web_search_node")
+      graph.add_edge("web_search_node","answer_node")
       graph.add_edge("answer_node", END)
       
       app = graph.compile()
+      
+      graph_png_bytes = app.get_graph().draw_mermaid_png()
+      with open("crag_graph.png","wb") as f:
+        f.write(graph_png_bytes)
+      
       return app
     
     def ask_agent(self, question: str) -> SCRAGResponse:

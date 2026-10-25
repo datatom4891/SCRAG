@@ -10,12 +10,12 @@ pattern_dict = {
       "credit_card_candidate": r"\b(?:\d[ -]*?){13,19}\b",
       "iban": r"\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b",
       "bank_routing_us": r"\b\d{9}\b",  # consider checksum validation
-      "swift_bic": r"\b[A-Z]{6}[A-Z0-9]{2}(?:[A-Z0-9]{3})?\b",
+      #"swift_bic": r"\b[A-Z]{6}[A-Z0-9]{2}(?:[A-Z0-9]{3})?\b",
 
       # ---------- Government / tax IDs ----------
       "ein_us": r"\b\d{2}-\d{7}\b",
       "passport_us_candidate": r"\b\d{9}\b",  # noisy; use context words + validator
-      "drivers_license_us_candidate": r"\b[A-Z0-9]{5,20}\b",  # must be context-gated
+      #"drivers_license_us_candidate": r"\b[A-Z0-9]{5,20}\b",  # must be context-gated
 
       # ---------- Health ----------
       "mrn_candidate": r"\b(?:MRN|Medical\s*Record\s*Number)[:\s#-]*([A-Z0-9\-]{6,20})\b",
@@ -37,8 +37,8 @@ pattern_dict = {
       "mac_address": r"\b(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b",
 
       # ---------- Address / geo ----------
-      "zip_us": r"\b\d{5}(?:-\d{4})?\b",
-      "address_line_candidate": r"\b\d{1,6}\s+[A-Za-z0-9.\-'\s]{2,40}\s(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Way|Place|Pl)\b",
+      #"zip_us": r"\b\d{5}(?:-\d{4})?\b",
+      #"address_line_candidate": r"\b\d{1,6}\s+[A-Za-z0-9.\-'\s]{2,40}\s(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Way|Place|Pl)\b",
 
       # ---------- Common international IDs (candidates) ----------
       "national_insurance_uk": r"\b(?!BG|GB|NK|KN|TN|NT|ZZ)[A-CEGHJ-PR-TW-Z]{2}\d{6}[A-D]?\b",
